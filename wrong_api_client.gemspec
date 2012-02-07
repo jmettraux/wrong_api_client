@@ -24,10 +24,12 @@ a lean RightAPI client
     '*.gemspec', '*.txt', '*.rdoc', '*.md', '*.mdown'
   ]
 
+  s.add_runtime_dependency 'rufus-json'
   s.add_runtime_dependency 'net-http-persistent', '>= 2.1'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'yajl-ruby'
 
   s.require_path = 'lib'
 end

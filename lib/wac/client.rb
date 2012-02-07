@@ -22,6 +22,7 @@
 
 require 'openssl'
 require 'net/http/persistent'
+require 'rufus-json/automatic'
 
 
 module WrongApiClient
@@ -38,6 +39,7 @@ module WrongApiClient
     API_VERSION = '1.5'
 
     attr_reader :cookie
+    attr_reader :session
 
     def initialize(options)
 
@@ -47,11 +49,23 @@ module WrongApiClient
       @http = Net::HTTP::Persistent.new('WrongApi')
 
       @cookie = login
+      @session = new_resource(ROOT)
     end
 
     def to_s
 
       "#<#{self.class} #{@endpoint}>"
+    end
+
+    def new_resource(path)
+
+      data = Rufus::Json.decode(request(:get, path).body)
+
+      if data.is_a?(Array)
+        data.collect { |d| ResourceStub.new(self, path, d) }
+      else
+        Resource.new(self, path, data)
+      end
     end
 
     protected
@@ -90,13 +104,49 @@ module WrongApiClient
     end
   end
 
-  class Resource
+  class ResourceStub
 
-    attr_reader :client
+    attr_reader :client, :path, :data
 
-    def initialize(client)
+    def initialize(client, path, data)
 
       @client = client
+      @path = data['links'].find { |l| l['rel'] == 'self' }['href']
+      @data = data
+
+      (@data['actions'] || []).each do |action|
+        p "... action: #{action} !!"
+      end
+
+      (@data['links'] || []).each do |link|
+
+        next if link['rel'] == 'self'
+
+        define_instance_method(link['rel']) do
+          client.new_resource(link['href'])
+        end
+      end
+    end
+
+    def to_s
+
+      "#<#{self.class} #{@path}>"
+    end
+
+    protected
+
+    def define_instance_method(meth, &block)
+
+      (class << self; self; end).module_eval { define_method(meth, &block) }
+    end
+  end
+
+  class Resource < ResourceStub
+
+    def initialize(client, path, data)
+
+      super
+      @path = path
     end
   end
 end

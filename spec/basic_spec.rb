@@ -10,8 +10,8 @@ describe WrongApiClient do
 
       r = WrongApiClient.new(CREDENTIALS)
 
-      #r.class.should == WrongApiClient::Resource
       r.cookie.should_not == nil
+      r.session.class.should == WrongApiClient::Resource
     end
   end
 
@@ -23,6 +23,19 @@ describe WrongApiClient do
 
       c.to_s.should_not match(/pass/)
       c.inspect.should_not match(/pass/)
+    end
+  end
+
+  describe '#clouds' do
+
+    it 'lists the available clouds' do
+
+      c = WrongApiClient.new(CREDENTIALS)
+
+      c.session.clouds.class.should ==
+        Array
+      c.session.clouds.collect { |e| e.class }.uniq.should ==
+        [ WrongApiClient::ResourceStub ]
     end
   end
 end
