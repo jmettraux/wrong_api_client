@@ -27,7 +27,7 @@ require 'rufus-json/automatic'
 
 module WrongApiClient
 
-  def self.new(options)
+  def self.login(options)
 
     Client.new(options).session
   end
@@ -115,7 +115,10 @@ module WrongApiClient
       @data = data
 
       (@data['actions'] || []).each do |action|
-        p "... action: #{action} !!"
+
+        define_instance_method(link['rel']) do |*args|
+          @client.send(:request, :post, *args)
+        end
       end
 
       (@data['links'] || []).each do |link|
@@ -123,7 +126,7 @@ module WrongApiClient
         next if link['rel'] == 'self'
 
         define_instance_method(link['rel']) do
-          client.new_resource(link['href'])
+          @client.new_resource(link['href'])
         end
       end
     end
