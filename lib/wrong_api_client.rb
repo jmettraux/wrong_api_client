@@ -128,11 +128,12 @@ module WrongApiClient
       return if @data.is_a?(Array)
 
       @data.each do |k, v|
-        next if %w[ actions links ].include?(k)
+
         define_instance_method(k) { v }
       end
 
       (@data['actions'] || []).each do |action|
+
         define_instance_method(action['rel']) do |*args|
           # TODO
           #@client.send(:request, :post, *args)
@@ -140,6 +141,7 @@ module WrongApiClient
       end
 
       (@data['links'] || []).each do |link|
+
         define_instance_method(link['rel']) do
           @client.new_resource(link['href'])
         end unless link['rel'] == 'self'
@@ -188,7 +190,7 @@ module WrongApiClient
 
     def show
 
-      # TODO
+      @client.new_resource(path)
     end
   end
 

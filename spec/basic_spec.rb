@@ -4,6 +4,10 @@ require 'spec_helper'
 
 describe WrongApiClient do
 
+  before(:each) do
+    @session = WrongApiClient.login(CREDENTIALS)
+  end
+
   context 'errors' do
 
     it 'raises WrongApiClient::Error instances' do
@@ -39,10 +43,10 @@ describe WrongApiClient do
 
       it 'lists the available clouds' do
 
-        s = WrongApiClient.login(CREDENTIALS)
-
-        s.clouds.class.should == WrongApiClient::ResourceCollection
-        s.clouds.map(&:class).uniq.should == [ WrongApiClient::ResourceStub ]
+        @session.clouds.class.should ==
+          WrongApiClient::ResourceCollection
+        @session.clouds.map(&:class).uniq.should ==
+          [ WrongApiClient::ResourceStub ]
       end
     end
   end
@@ -53,10 +57,8 @@ describe WrongApiClient do
 
       it 'does not reveal sensitive info' do
 
-        s = WrongApiClient.login(CREDENTIALS)
-
-        s.client.to_s.should_not match(/pass/)
-        s.client.inspect.should_not match(/pass/)
+        @session.client.to_s.should_not match(/pass/)
+        @session.client.inspect.should_not match(/pass/)
       end
     end
   end
@@ -65,9 +67,17 @@ describe WrongApiClient do
 
     it 'responds to #show' do
 
-      s = WrongApiClient.login(CREDENTIALS)
+      @session.clouds.first.respond_to?(:show).should == true
+    end
 
-      s.clouds.first.respond_to?(:show).should == true
+    describe '#show' do
+
+      it 'returns the Resource instance' do
+
+        r = @session.clouds.first.show
+
+        r.class.should == WrongApiClient::Resource
+      end
     end
   end
 
@@ -75,17 +85,19 @@ describe WrongApiClient do
 
     it 'has fields' do
 
-      s = WrongApiClient.login(CREDENTIALS)
-
-      s.message.should ==
+      @session.message.should ==
         'You have successfully logged into the RightScale API.'
+    end
+
+    it 'lists actions and links' do
+
+      @session.actions.should == []
+      @session.links.map { |l| l['rel'] }.should include('self')
     end
 
     it 'does not respond to #show' do
 
-      s = WrongApiClient.login(CREDENTIALS)
-
-      s.respond_to?(:show).should == false
+      @session.respond_to?(:show).should == false
     end
   end
 end
