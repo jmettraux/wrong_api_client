@@ -62,7 +62,7 @@ module WrongApiClient
       data = Rufus::Json.decode(request(:get, path).body)
 
       if data.is_a?(Array)
-        data.collect { |d| ResourceStub.new(self, path, d) }
+        ResourceCollection.new(self, path, data)
       else
         Resource.new(self, path, data)
       end
@@ -104,15 +104,17 @@ module WrongApiClient
     end
   end
 
-  class ResourceStub
+  class Res
 
     attr_reader :client, :path, :data
 
     def initialize(client, path, data)
 
       @client = client
-      @path = data['links'].find { |l| l['rel'] == 'self' }['href']
+      @path = path
       @data = data
+
+      return if @data.is_a?(Array)
 
       @data.each do |k, v|
         next if %w[ actions links ].include?(k)
@@ -138,11 +140,6 @@ module WrongApiClient
       "#<#{self.class} #{@path}>"
     end
 
-    def show
-
-      # TODO
-    end
-
     protected
 
     def define_instance_method(meth, &block)
@@ -151,15 +148,40 @@ module WrongApiClient
     end
   end
 
-  class Resource < ResourceStub
+  class ResourceCollection < Res
+    include Enumerable
+
+    def stubs
+
+      @stubs ||= @data.collect { |d| ResourceStub.new(@client, nil, d) }
+    end
+
+    def each(&block)
+
+      stubs.each { |s| block.call(s) }
+    end
+
+    def index
+
+      # TODO
+    end
+  end
+
+  class ResourceStub < Res
 
     def initialize(client, path, data)
 
       super
-      @path = path
+      @path = data['links'].find { |l| l['rel'] == 'self' }['href']
     end
 
-    undef show
+    def show
+
+      # TODO
+    end
+  end
+
+  class Resource < Res
   end
 end
 

@@ -32,7 +32,7 @@ describe WrongApiClient do
 
       s = WrongApiClient.login(CREDENTIALS)
 
-      s.clouds.class.should == Array
+      s.clouds.class.should == WrongApiClient::ResourceCollection
       s.clouds.map(&:class).uniq.should == [ WrongApiClient::ResourceStub ]
     end
   end
