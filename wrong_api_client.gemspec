@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.name = 'wrong_api_client'
 
   s.version = File.read(
-    File.expand_path('../lib/wac/version.rb', __FILE__)
+    File.expand_path('../lib/wrong_api_client.rb', __FILE__)
   ).match(/ VERSION *= *['"]([^'"]+)/)[1]
 
   s.platform = Gem::Platform::RUBY

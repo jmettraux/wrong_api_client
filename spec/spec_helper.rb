@@ -1,4 +1,5 @@
 
+require 'rufus-json/automatic'
 require 'wrong_api_client'
 
 require File.join(File.dirname(__FILE__), 'credentials.rb')
