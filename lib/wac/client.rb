@@ -59,7 +59,7 @@ module WrongApiClient
 
     def new_resource(path)
 
-      data = Rufus::Json.decode(request(:get, path).body)
+      data = request(:get, path).json
 
       if data.is_a?(Array)
         ResourceCollection.new(self, path, data)
@@ -100,7 +100,14 @@ module WrongApiClient
       req = METHODS[method].new(uri.path, headers)
       req.set_form_data(body) if body
 
-      @http.request(uri, req)
+      res = @http.request(uri, req)
+      code = res.code.to_i
+
+      raise WrongApiClient::Error.new(res) if code < 200 || code > 299
+
+      (class << res; self; end).send(:include, ResponseHelpers)
+
+      res
     end
   end
 
@@ -182,6 +189,25 @@ module WrongApiClient
   end
 
   class Resource < Res
+  end
+
+  module ResponseHelpers
+
+    def json
+
+      Rufus::Json.decode(self.body)
+    end
+  end
+
+  class Error < StandardError
+
+    attr_reader :http_code
+
+    def initialize(response)
+
+      @http_code = response.code.to_i
+      super("#{@http_code}: #{response.body}")
+    end
   end
 end
 

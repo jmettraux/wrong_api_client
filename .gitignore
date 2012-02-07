@@ -1,4 +1,5 @@
 
+.rvmrc
 .rspec
 .bundle
 spec/credentials.rb
