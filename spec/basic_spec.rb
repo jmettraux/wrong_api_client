@@ -35,17 +35,6 @@ describe WrongApiClient do
 
   describe 'the session' do
 
-    describe '#to_s' do
-
-      it 'does not reveal sensitive info' do
-
-        s = WrongApiClient.login(CREDENTIALS)
-
-        s.client.to_s.should_not match(/pass/)
-        s.client.inspect.should_not match(/pass/)
-      end
-    end
-
     describe '#clouds' do
 
       it 'lists the available clouds' do
@@ -54,6 +43,20 @@ describe WrongApiClient do
 
         s.clouds.class.should == WrongApiClient::ResourceCollection
         s.clouds.map(&:class).uniq.should == [ WrongApiClient::ResourceStub ]
+      end
+    end
+  end
+
+  describe WrongApiClient::Client do
+
+    describe '#to_s' do
+
+      it 'does not reveal sensitive info' do
+
+        s = WrongApiClient.login(CREDENTIALS)
+
+        s.client.to_s.should_not match(/pass/)
+        s.client.inspect.should_not match(/pass/)
       end
     end
   end
