@@ -114,8 +114,12 @@ module WrongApiClient
       @path = data['links'].find { |l| l['rel'] == 'self' }['href']
       @data = data
 
-      (@data['actions'] || []).each do |action|
+      @data.each do |k, v|
+        next if %w[ actions links ].include?(k)
+        define_instance_method(k) { v }
+      end
 
+      (@data['actions'] || []).each do |action|
         define_instance_method(action['rel']) do |*args|
           # TODO
           #@client.send(:request, :post, *args)
@@ -123,18 +127,20 @@ module WrongApiClient
       end
 
       (@data['links'] || []).each do |link|
-
-        next if link['rel'] == 'self'
-
         define_instance_method(link['rel']) do
           @client.new_resource(link['href'])
-        end
+        end unless link['rel'] == 'self'
       end
     end
 
     def to_s
 
       "#<#{self.class} #{@path}>"
+    end
+
+    def show
+
+      # TODO
     end
 
     protected
@@ -152,6 +158,8 @@ module WrongApiClient
       super
       @path = path
     end
+
+    undef show
   end
 end
 
