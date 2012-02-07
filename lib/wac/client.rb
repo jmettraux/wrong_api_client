@@ -116,8 +116,9 @@ module WrongApiClient
 
       (@data['actions'] || []).each do |action|
 
-        define_instance_method(link['rel']) do |*args|
-          @client.send(:request, :post, *args)
+        define_instance_method(action['rel']) do |*args|
+          # TODO
+          #@client.send(:request, :post, *args)
         end
       end
 

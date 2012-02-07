@@ -37,14 +37,14 @@ describe WrongApiClient do
     end
   end
 
-  describe WrongApiClient::Resource do
-
-    it 'flips burgers' do
-
-      s = WrongApiClient.login(CREDENTIALS)
-
-      pp s.servers
-    end
-  end
+#  describe WrongApiClient::Resource do
+#
+#    it 'flips burgers' do
+#
+#      s = WrongApiClient.login(CREDENTIALS)
+#
+#      s.servers
+#    end
+#  end
 end
 
