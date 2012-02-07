@@ -20,6 +20,10 @@
 # THE SOFTWARE.
 #++
 
+require 'openssl'
+require 'net/http/persistent'
+
+
 module WrongApiClient
 
   def self.new(options)
@@ -29,14 +33,70 @@ module WrongApiClient
 
   class Client
 
+    ROOT = '/api/session'
+    API_URI = 'https://my.rightscale.com'
+    API_VERSION = '1.5'
+
+    attr_reader :cookie
+
     def initialize(options)
 
       @options = options
+      @endpoint = options[:api_uri] || API_URI
+
+      @http = Net::HTTP::Persistent.new('WrongApi')
+
+      @cookie = login
     end
 
     def to_s
 
-      "#<#{self.class}>"
+      "#<#{self.class} #{@endpoint}>"
+    end
+
+    protected
+
+    def login
+
+      body = {
+        'email' => @options[:email],
+        'password' => @options[:password],
+        'account_href' => "/api/accounts/#{@options[:account_id]}"
+      }
+
+      request(:post, ROOT, body)['set-cookie']
+    end
+
+    METHODS = {
+      :get => Net::HTTP::Get,
+      :post => Net::HTTP::Post,
+      :delete => Net::HTTP::Delete
+    }
+
+    def request(method, path, body=nil)
+
+      uri = URI.parse("#{@endpoint}#{path}")
+
+      headers = {
+        'X_API_VERSION' => API_VERSION,
+        'Accept' => 'application/json'
+      }
+      headers['Cookie'] = @cookie if @cookie
+
+      req = METHODS[method].new(uri.path, headers)
+      req.set_form_data(body) if body
+
+      @http.request(uri, req)
+    end
+  end
+
+  class Resource
+
+    attr_reader :client
+
+    def initialize(client)
+
+      @client = client
     end
   end
 end

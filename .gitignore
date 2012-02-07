@@ -1,2 +1,8 @@
+
 .rspec
+.bundle
 spec/credentials.rb
+
+Gemfile.lock
+  # it's a library, not an application
+

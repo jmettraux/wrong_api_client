@@ -6,11 +6,12 @@ describe WrongApiClient do
 
   describe '.new' do
 
-    it 'instantiates' do
+    it 'logs in' do
 
-      c = WrongApiClient.new(CREDENTIALS)
+      r = WrongApiClient.new(CREDENTIALS)
 
-      c.class.should == WrongApiClient::Client
+      #r.class.should == WrongApiClient::Resource
+      r.cookie.should_not == nil
     end
   end
 
@@ -21,6 +22,7 @@ describe WrongApiClient do
       c = WrongApiClient.new(CREDENTIALS)
 
       c.to_s.should_not match(/pass/)
+      c.inspect.should_not match(/pass/)
     end
   end
 end
