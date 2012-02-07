@@ -29,7 +29,7 @@ module WrongApiClient
 
   def self.new(options)
 
-    Client.new(options)
+    Client.new(options).session
   end
 
   class Client

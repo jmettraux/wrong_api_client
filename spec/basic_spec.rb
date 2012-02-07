@@ -10,8 +10,8 @@ describe WrongApiClient do
 
       r = WrongApiClient.new(CREDENTIALS)
 
-      r.cookie.should_not == nil
-      r.session.class.should == WrongApiClient::Resource
+      r.class.should == WrongApiClient::Resource
+      r.path.should == '/api/session'
     end
   end
 
@@ -19,10 +19,10 @@ describe WrongApiClient do
 
     it 'does not reveal sensitive info' do
 
-      c = WrongApiClient.new(CREDENTIALS)
+      s = WrongApiClient.new(CREDENTIALS)
 
-      c.to_s.should_not match(/pass/)
-      c.inspect.should_not match(/pass/)
+      s.client.to_s.should_not match(/pass/)
+      s.client.inspect.should_not match(/pass/)
     end
   end
 
@@ -30,12 +30,10 @@ describe WrongApiClient do
 
     it 'lists the available clouds' do
 
-      c = WrongApiClient.new(CREDENTIALS)
+      s = WrongApiClient.new(CREDENTIALS)
 
-      c.session.clouds.class.should ==
-        Array
-      c.session.clouds.collect { |e| e.class }.uniq.should ==
-        [ WrongApiClient::ResourceStub ]
+      s.clouds.class.should == Array
+      s.clouds.map(&:class).uniq.should == [ WrongApiClient::ResourceStub ]
     end
   end
 end
